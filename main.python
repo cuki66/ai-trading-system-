@@ -1,0 +1,50 @@
+from exchanges.indodax import IndodaxAPI
+from exchanges.tokocrypto import TokocryptoAPI
+from ai.model_lstm import LSTMModel
+from trader.signal import generate_signal
+from trader.executor import execute
+
+import time
+
+USE = "indodax"   # ganti: indodax / tokocrypto
+
+# ================= API KEY ======================
+API_KEY = "ISI_SENDIRI"
+API_SECRET = "ISI_SENDIRI"
+# =================================================
+
+# load exchange
+if USE == "indodax":
+    ex = IndodaxAPI(API_KEY, API_SECRET)
+    pair = "btc_idr"
+    get_price = lambda: float(ex.get_ticker(pair)["ticker"]["last"])
+else:
+    ex = TokocryptoAPI(API_KEY, API_SECRET)
+    pair = "BTCUSDT"
+    get_price = lambda: ex.get_price(pair)
+
+# load AI model
+model = LSTMModel()
+
+prices = []
+
+print("🚀 LIVE AI TRADING STARTED\n")
+
+while True:
+    price = get_price()
+    prices.append(price)
+
+    if len(prices) < 60:
+        print(f"Collecting prices... ({len(prices)}/60)")
+        time.sleep(5)
+        continue
+
+    signal = generate_signal(model, prices)
+    print(f"Price: {price} | Signal: {signal}")
+
+    # eksekusi
+    if signal in ["BUY", "SELL"]:
+        result = execute(ex, signal, pair, 0.0001)
+        print(result)
+
+    time.sleep(10)
