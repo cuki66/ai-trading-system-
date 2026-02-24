@@ -6,8 +6,6 @@
   <img src="assets/logo.png" width="180" alt="AI Trading System Logo">
 </p>
 
-<h1 align="center">🤖 AI LIVE TRADING SYSTEM</h1>
-
 <p align="center">
   <b>Automated & Intelligent Trading Bot</b><br>
   Terhubung ke Exchange Indonesia — Indodax, Tokocrypto (Binance Broker), dan lainnya.
