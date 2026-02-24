@@ -1,0 +1,26 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+class LSTMModel:
+    def __init__(self):
+        self.model = self._build()
+
+    def _build(self):
+        model = models.Sequential([
+            layers.LSTM(64, return_sequences=True, input_shape=(60, 1)),
+            layers.LSTM(32),
+            layers.Dense(16, activation='relu'),
+            layers.Dense(1, activation="tanh")
+        ])
+        model.compile(optimizer="adam", loss="mse")
+        return model
+
+    def predict_signal(self, prices):
+        X = np.array(prices[-60:]).reshape(1,60,1)
+        pred = self.model.predict(X)[0][0]
+        if pred > 0.2:
+            return "BUY"
+        elif pred < -0.2:
+            return "SELL"
+        return "HOLD"
