@@ -1,0 +1,54 @@
+import time
+import hmac
+import hashlib
+import requests
+import urllib.parse
+
+class TokocryptoAPI:
+    def __init__(self, api_key, api_secret):
+        self.base = "https://api.tokocrypto.com"
+        self.key = api_key
+        self.secret = api_secret.encode()
+
+    def _sign(self, params):
+        query = urllib.parse.urlencode(params)
+        signature = hmac.new(self.secret, query.encode(), hashlib.sha256).hexdigest()
+        params["signature"] = signature
+        return params
+
+    def _headers(self):
+        return {
+            "X-MBX-APIKEY": self.key
+        }
+
+    # PUBLIC: PRICE
+    def get_price(self, symbol="BTCUSDT"):
+        r = requests.get(f"{self.base}/v1/ticker/price", params={"symbol": symbol})
+        return float(r.json()["price"])
+
+    # PRIVATE: ACCOUNT BALANCE
+    def get_balance(self):
+        params = {
+            "timestamp": int(time.time()*1000)
+        }
+        final = self._sign(params)
+        r = requests.get(f"{self.base}/v3/account", headers=self._headers(), params=final)
+        return r.json()
+
+    # PRIVATE: ORDER
+    def create_order(self, symbol, side, qty):
+        params = {
+            "symbol": symbol,
+            "side": side,          # BUY / SELL
+            "type": "MARKET",
+            "quantity": qty,
+            "timestamp": int(time.time()*1000)
+        }
+        final = self._sign(params)
+
+        r = requests.post(
+            f"{self.base}/v3/order",
+            headers=self._headers(),
+            params=final
+        )
+        return r.json()
