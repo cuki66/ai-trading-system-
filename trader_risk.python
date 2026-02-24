@@ -1,0 +1,2 @@
+def is_safe(balance, min_required=50_000):
+    return balance >= min_required
