@@ -1,0 +1,18 @@
+import streamlit as st
+from PIL import Image
+
+st.set_page_config(page_title="AI Trading System", page_icon="🤖", layout="wide")
+
+logo = Image.open("assets/logo.png")
+st.image(logo, width=120)
+
+st.title("🤖 AI Trading System")
+st.subheader("Live Trading Dashboard — Indodax & Tokocrypto")
+
+st.markdown("""
+Selamat datang di **AI Trading Dashboard**.  
+Pilih menu di sidebar untuk melihat data:
+- 📊 Market Charts  
+- 📈 AI Signal  
+- 🤖 Live Trading  
+""")
