@@ -1,0 +1,4 @@
+def normalize(prices):
+    mx = max(prices)
+    mn = min(prices)
+    return [(p - mn) / (mx - mn) for p in prices]
