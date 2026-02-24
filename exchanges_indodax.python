@@ -1,0 +1,53 @@
+import time
+import hmac
+import hashlib
+import requests
+import urllib.parse
+
+class IndodaxAPI:
+    def __init__(self, api_key, api_secret):
+        self.key = api_key
+        self.secret = api_secret.encode()
+        self.base = "https://indodax.com/tapi"
+
+    # SIGNATURE GENERATOR
+    def _sign(self, params):
+        encoded_params = urllib.parse.urlencode(params).encode()
+        signature = hmac.new(self.secret, encoded_params, hashlib.sha512).hexdigest()
+        return signature, encoded_params
+
+    # PRIVATE API CALL
+    def _private(self, method, params={}):
+        params.update({
+            "method": method,
+            "timestamp": int(time.time()),
+        })
+
+        sig, body = self._sign(params)
+
+        headers = {
+            "Key": self.key,
+            "Sign": sig
+        }
+
+        r = requests.post(self.base, headers=headers, data=body)
+        return r.json()
+
+    # PUBLIC: CURRENT PRICE
+    def get_ticker(self, pair="btc_idr"):
+        url = f"https://indodax.com/api/ticker/{pair}"
+        return requests.get(url).json()
+
+    # PRIVATE: BALANCE
+    def get_balance(self):
+        return self._private("getInfo")
+
+    # PRIVATE: ORDER
+    def place_order(self, pair, order_type, harga, jumlah):
+        return self._private("trade", {
+            "pair": pair,
+            "type": order_type,   # buy/sell
+            "price": harga,
+            "idr": jumlah if order_type == "buy" else 0,
+            "btc": jumlah if order_type == "sell" else 0
+        })
