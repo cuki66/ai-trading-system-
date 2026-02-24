@@ -1,0 +1,10 @@
+def execute(exchange, signal, symbol, qty):
+    if signal == "BUY":
+        print("⚡ BUY EXECUTED")
+        return exchange.place_order(symbol, "buy", 0, qty)
+
+    if signal == "SELL":
+        print("⚡ SELL EXECUTED")
+        return exchange.place_order(symbol, "sell", 0, qty)
+
+    return {"status": "HOLD"}
